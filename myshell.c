@@ -42,10 +42,12 @@ int main(int argc, char *argv[])
         result = strtok(buffer, " ");
         // Perform string tokenization to get the command and argument
     strcpy(command, result);
+        result = strtok(NULL, " ");
     while( result != NULL ) 
 	{   
         strcat(arg, result);
-        result = strtok( NULL, "" );
+        strcat(arg, " ");
+        result = strtok( NULL, " " );
     }
     
         // Check the command and execute the operations for each command
@@ -70,6 +72,8 @@ int main(int argc, char *argv[])
             printf("Command is %s, arg is %s\n", command, arg);
             fputs("Unsupported command, use help to display the manual\n", stderr);
         }
+        memset(arg,0,strlen(arg));
+
     }
     return EXIT_SUCCESS;
 }
