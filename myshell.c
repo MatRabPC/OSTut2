@@ -47,17 +47,14 @@ int main(int argc, char *argv[])
         strcat(arg, result);
         result = strtok( NULL, "" );
     }
+    
         // Check the command and execute the operations for each command
         // cd command -- change the current directory
         if (strcmp(command, "cd") == 0)
         {
-            printf("Command is %s, arg is %s\n", command, arg);
+            printf("CD here\n");
         }
 
-        if (strcmp(command, "hello") == 0)
-        {
-            printf("Command is %s, arg is %s\n", command, arg);
-        }
 
         // other commands here...
         
@@ -70,6 +67,7 @@ int main(int argc, char *argv[])
         // Unsupported command
         else
         {
+            printf("Command is %s, arg is %s\n", command, arg);
             fputs("Unsupported command, use help to display the manual\n", stderr);
         }
     }
