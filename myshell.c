@@ -14,52 +14,85 @@
 #include "utility.h"
 #include "myshell.h"
 
-// Put macros or constants here using #define
 #define BUFFER_LEN 256
 
-// Put global environment variables here
-
-// Define functions declared in myshell.h here
-
-// if (bugger[strlen(buffer)-1] == "\n")
-//{ buffer[strlen(buffer)-1] = '\0']; }
-int main(int argc, char *argv[])
+int main(int argc, char *argv[], char** envp)
 {
-    // Input buffer and and commands
+   
     char buffer[BUFFER_LEN] = { 0 };
     char command[BUFFER_LEN] = { 0 };
     char arg[BUFFER_LEN] = { 0 };
-    // Parse the commands provided using argc and argv
-   char *result = NULL;
+    char *result = NULL;
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+
    
 
-    // Perform an infinite loop getting command input from users
     while (fgets(buffer, BUFFER_LEN, stdin) != NULL)
     {   
         if (buffer[strlen(buffer)-1] == '\n') {
             buffer[strlen(buffer)-1] = '\0';
         }
+        
         result = strtok(buffer, " ");
-        // Perform string tokenization to get the command and argument
-    strcpy(command, result);
+        strcpy(command, result);
         result = strtok(NULL, " ");
-    while( result != NULL ) 
-	{   
-        strcat(arg, result);
-        strcat(arg, " ");
-        result = strtok( NULL, " " );
-    }
+
+        while( result != NULL ) 
+        {   
+            strcat(arg, result);
+            strcat(arg, " ");
+            result = strtok( NULL, " " );
+        }
     
-        // Check the command and execute the operations for each command
-        // cd command -- change the current directory
+        // cd command -- change directory
         if (strcmp(command, "cd") == 0)
         {
-            printf("CD here\n");
+            chdir(arg);
         }
 
+        // clr command -- clear terminal
+        else if (strcmp(command, "clr") == 0)
+        {
+            system("clear");
+        }
 
-        // other commands here...
-        
+        // dir command -- display contents of current directory
+        else if (strcmp(command, "dir") == 0)
+        {
+            system("ls");
+        }
+
+        // environ command -- list environment strings
+        else if (strcmp(command, "environ") == 0)
+        {
+            char** env;
+            for (env = envp; *env != 0; env++)
+            {
+                char* thisEnv = *env;
+                printf("%s\n", thisEnv);    
+            }
+        }
+
+        // echo command -- print comment to terminal
+        else if (strcmp(command, "echo") == 0)
+        {
+            printf("%s\n", arg);
+        }
+
+        // help command -- S.O.S
+        else if (strcmp(command, "help") == 0)
+        {
+            system("man more");
+        }
+
+        // pause command -- wait a minute
+        else if (strcmp(command, "pause") == 0)
+        {
+            scanf("%c",arg);
+            //getchar();
+        }
+
         // quit command -- exit the shell
         else if (strcmp(command, "quit") == 0)
         {
@@ -69,9 +102,11 @@ int main(int argc, char *argv[])
         // Unsupported command
         else
         {
-            printf("Command is %s, arg is %s\n", command, arg);
+            printf("Command: %s || Arg: %s\n", command, arg);
             fputs("Unsupported command, use help to display the manual\n", stderr);
         }
+        
+        //clear arg
         memset(arg,0,strlen(arg));
 
     }
