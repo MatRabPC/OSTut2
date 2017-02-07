@@ -30,8 +30,7 @@ int main(int argc, char *argv[])
     char command[BUFFER_LEN] = { 0 };
     char arg[BUFFER_LEN] = { 0 };
     // Parse the commands provided using argc and argv
-    char *token;
-   
+   char *result = NULL;
    
 
     // Perform an infinite loop getting command input from users
@@ -40,15 +39,24 @@ int main(int argc, char *argv[])
         if (buffer[strlen(buffer)-1] == '\n') {
             buffer[strlen(buffer)-1] = '\0';
         }
-        token = strtok(buffer, " ");
+        result = strtok(buffer, " ");
         // Perform string tokenization to get the command and argument
-        strcpy(command, strtok(buffer, " "));
-        strcpy(arg, strtok(buffer, " "));
+    strcpy(command, result);
+    while( result != NULL ) 
+	{   
+        strcat(arg, result);
+        result = strtok( NULL, "" );
+    }
         // Check the command and execute the operations for each command
         // cd command -- change the current directory
         if (strcmp(command, "cd") == 0)
         {
-            printf("Command is %s, arg is %s", command, arg);
+            printf("Command is %s, arg is %s\n", command, arg);
+        }
+
+        if (strcmp(command, "hello") == 0)
+        {
+            printf("Command is %s, arg is %s\n", command, arg);
         }
 
         // other commands here...
