@@ -21,25 +21,34 @@
 
 // Define functions declared in myshell.h here
 
+// if (bugger[strlen(buffer)-1] == "\n")
+//{ buffer[strlen(buffer)-1] = '\0']; }
 int main(int argc, char *argv[])
 {
     // Input buffer and and commands
     char buffer[BUFFER_LEN] = { 0 };
     char command[BUFFER_LEN] = { 0 };
     char arg[BUFFER_LEN] = { 0 };
-
     // Parse the commands provided using argc and argv
+    char *token;
+   
+   
 
     // Perform an infinite loop getting command input from users
     while (fgets(buffer, BUFFER_LEN, stdin) != NULL)
-    {
+    {   
+        if (buffer[strlen(buffer)-1] == '\n') {
+            buffer[strlen(buffer)-1] = '\0';
+        }
+        token = strtok(buffer, " ");
         // Perform string tokenization to get the command and argument
-
+        strcpy(command, strtok(buffer, " "));
+        strcpy(arg, strtok(buffer, " "));
         // Check the command and execute the operations for each command
         // cd command -- change the current directory
         if (strcmp(command, "cd") == 0)
         {
-            // your code here
+            printf("Command is %s, arg is %s", command, arg);
         }
 
         // other commands here...
