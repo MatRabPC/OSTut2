@@ -16,10 +16,14 @@
 
 #define BUFFER_LEN 256
 
+int sheller(char buffer[], char** envp); //the shell command function
+
+
 int main(int argc, char *argv[], char** envp)
 {
-   
-if (argv[1] != NULL){ //Reads arguement instead of input
+
+
+    if (argv[1] != NULL){
             FILE *fp;
             fp = fopen(argv[1], "r");
 
@@ -27,29 +31,36 @@ if (argv[1] != NULL){ //Reads arguement instead of input
             printf("Batchfile %s was not found\n", argv[1]);
             exit(1);
             }
-         else{ //File is open successfully 
+            else{ //File is open successfully 
                 printf("File open success test\n");
-                char line [BUFFER_LEN];
+                char line [BUFFER_LEN]; printf("Batchfile %s was not found\n", argv[1]);
                 while(fgets(line,sizeof line, fp) != NULL){
-                    sheller(line);
-                   
+                    sheller(line, envp);}
                 }
-            }
+            
             fclose(fp);
-        return EXIT_SUCCESS;
-}
+            exit(1);
+            return EXIT_SUCCESS; //fallback
+        }
 
-    
     char buffer[BUFFER_LEN] = { 0 };
-
-    while (fgets(buffer, BUFFER_LEN, stdin) != NULL)
+    char cwd[1024];
+    
+    printf("\033[1m%s\033[0m$ ", getcwd(cwd, sizeof(cwd))); //initial line prompt directory print
+   
+    while (fgets(buffer, BUFFER_LEN, stdin) != NULL) //while we still get input. Else, core dump
     {   
+       
         if (buffer[strlen(buffer)-1] == '\n') {
             buffer[strlen(buffer)-1] = '\0';
-        }
-        sheller(buffer);
+        } //replace trailing enter with terminator character
+        sheller(buffer, envp); //call the sheller function (the shell part)
+        printf("\033[1m%s\033[0m$ ", getcwd(cwd, sizeof(cwd)));
+        //if we're running from the batchfile, printing the command prompt directory line looks ugly. so just print here
     }
+    exit(42); //exit otherwise
 }
+
 
 int sheller(char buffer[], char** envp)
 {
@@ -57,12 +68,10 @@ int sheller(char buffer[], char** envp)
         char arg[BUFFER_LEN] = { 0 };
         char *result = NULL;
         char cwd[1024];
+        char man[BUFFER_LEN] = "man ";
         getcwd(cwd, sizeof(cwd));
-        
-        if (buffer[strlen(buffer)-1] == '\n') {
-            buffer[strlen(buffer)-1] = '\0';
-        }
-        
+        //initialise our stuff
+
         result = strtok(buffer, " ");
         strcpy(command, result);
         result = strtok(NULL, " ");
@@ -74,12 +83,24 @@ int sheller(char buffer[], char** envp)
             result = strtok( NULL, " " );
         }
         arg[strlen(arg) - 1] = '\0';
+        //tokenize, push argument to arg, and remove trailing space
+
+
         // cd command -- change directory
         if (strcmp(command, "cd") == 0)
         {
-        if( chdir( arg ) == 0 ) {
-            printf( "Directory changed to %s\n", arg);
+        if(strlen(arg) == 0) {
+        printf( "Current Directory: %s\n", getcwd(cwd, sizeof(cwd)));
+        } //if no argument
+        else if( chdir( arg ) == 0 ) {
+           // printf( "Directory changed to %s\n", arg);
+            setenv("PWD", getcwd(cwd, sizeof(cwd)), 1);
         }
+        else
+        {
+            printf( "Could not locate directory %s\n", arg);
+        }
+        
          //   printf("%s\n", getcwd(buffer, 1024));
         }
 
@@ -115,13 +136,16 @@ int sheller(char buffer[], char** envp)
         // help command -- S.O.S
         else if (strcmp(command, "help") == 0)
         {
-            system("man more");
+            strcpy(man, "man ");
+            strcat(man, arg);
+            system(man);
         }
 
         // pause command -- wait a minute
         else if (strcmp(command, "pause") == 0)
         {
-            scanf("%s",cwd);
+            fgets(buffer, BUFFER_LEN, stdin);
+            //scanf("%s",cwd);
             //getchar();
         }
 
@@ -140,6 +164,5 @@ int sheller(char buffer[], char** envp)
         
         //clear arg
         memset(arg,0,strlen(arg));
-
         return 1;
 }
