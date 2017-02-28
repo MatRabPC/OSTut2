@@ -32,9 +32,10 @@ int main(int argc, char *argv[], char** envp)
             exit(1);
             }
             else{ //File is open successfully 
-                printf("File open success test\n");
-                char line [BUFFER_LEN]; printf("Batchfile %s was not found\n", argv[1]);
+              //  printf("File open success test\n");
+                char line [BUFFER_LEN];
                 while(fgets(line,sizeof line, fp) != NULL){
+                    
                     sheller(line, envp);} //PS, we pass envp over so that sheller may access it
                 }
             
@@ -51,9 +52,7 @@ int main(int argc, char *argv[], char** envp)
     while (fgets(buffer, BUFFER_LEN, stdin) != NULL) //while we still get input. Else, core dump
     {   
        
-        if (buffer[strlen(buffer)-1] == '\n') {
-            buffer[strlen(buffer)-1] = '\0';
-        } //replace trailing enter with terminator character
+        
         sheller(buffer, envp); //call the sheller function (the shell part)
         printf("\033[1m%s\033[0m$ ", getcwd(cwd, sizeof(cwd)));
         //if we're running from the batchfile, printing the command prompt directory line looks ugly. so just print here
@@ -71,7 +70,9 @@ int sheller(char buffer[], char** envp)
         char man[BUFFER_LEN] = "man "; //for the manual. I think the pdf was refering to the man manual, forgive me if I'm wrong 
         getcwd(cwd, sizeof(cwd));
         //initialise our stuff
-
+        if (buffer[strlen(buffer)-1] == '\n') {
+                    buffer[strlen(buffer)-1] = '\0';
+                } //replace trailing enter with terminator character
         result = strtok(buffer, " ");
         strcpy(command, result);
         result = strtok(NULL, " ");
