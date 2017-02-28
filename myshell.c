@@ -26,7 +26,29 @@ int main(int argc, char *argv[], char** envp)
     char cwd[1024];
     getcwd(cwd, sizeof(cwd));
 
-   
+    if (argv[1] != NULL){ //Reads arguement instead of input
+            arg[strlen(argv[1]) - 1] = '\0';
+            FILE *fp;
+            fp = fopen(argv[1], "r");
+
+            if (fp == NULL){//if batchfile doesnt exist, output not valid arguements
+            printf("Batchfile %s was not found\n", arg);
+            exit(1);
+            }
+         else{ //File is open successfully 
+                printf("File open success test");
+                char line [1000];
+                while(fgets(line,sizeof line, fp) != NULL){
+                    system(line);
+                    strcpy(buffer, line);
+                    continue;
+                }
+            }
+            fclose(fp);
+        return EXIT_SUCCESS;
+    }
+
+    
 
     while (fgets(buffer, BUFFER_LEN, stdin) != NULL)
     {   
@@ -44,7 +66,7 @@ int main(int argc, char *argv[], char** envp)
             strcat(arg, " ");
             result = strtok( NULL, " " );
         }
-    
+
         // cd command -- change directory
         if (strcmp(command, "cd") == 0)
         {
@@ -92,6 +114,7 @@ int main(int argc, char *argv[], char** envp)
             scanf("%c",arg);
             //getchar();
         }
+
 
         // quit command -- exit the shell
         else if (strcmp(command, "quit") == 0)
