@@ -19,39 +19,46 @@
 int main(int argc, char *argv[], char** envp)
 {
    
-    char buffer[BUFFER_LEN] = { 0 };
-    char command[BUFFER_LEN] = { 0 };
-    char arg[BUFFER_LEN] = { 0 };
-    char *result = NULL;
-    char cwd[1024];
-    getcwd(cwd, sizeof(cwd));
-
-    if (argv[1] != NULL){ //Reads arguement instead of input
-            arg[strlen(argv[1]) - 1] = '\0';
+if (argv[1] != NULL){ //Reads arguement instead of input
             FILE *fp;
             fp = fopen(argv[1], "r");
 
             if (fp == NULL){//if batchfile doesnt exist, output not valid arguements
-            printf("Batchfile %s was not found\n", arg);
+            printf("Batchfile %s was not found\n", argv[1]);
             exit(1);
             }
          else{ //File is open successfully 
-                printf("File open success test");
-                char line [1000];
+                printf("File open success test\n");
+                char line [BUFFER_LEN];
                 while(fgets(line,sizeof line, fp) != NULL){
-                    system(line);
-                    strcpy(buffer, line);
-                    continue;
+                    sheller(line);
+                   
                 }
             }
             fclose(fp);
         return EXIT_SUCCESS;
-    }
+}
 
     
+    char buffer[BUFFER_LEN] = { 0 };
 
     while (fgets(buffer, BUFFER_LEN, stdin) != NULL)
     {   
+        if (buffer[strlen(buffer)-1] == '\n') {
+            buffer[strlen(buffer)-1] = '\0';
+        }
+        sheller(buffer);
+    }
+}
+
+int sheller(char buffer[], char** envp)
+{
+        char command[BUFFER_LEN] = { 0 };
+        char arg[BUFFER_LEN] = { 0 };
+        char *result = NULL;
+        char cwd[1024];
+        getcwd(cwd, sizeof(cwd));
+        
         if (buffer[strlen(buffer)-1] == '\n') {
             buffer[strlen(buffer)-1] = '\0';
         }
@@ -66,11 +73,14 @@ int main(int argc, char *argv[], char** envp)
             strcat(arg, " ");
             result = strtok( NULL, " " );
         }
-
+        arg[strlen(arg) - 1] = '\0';
         // cd command -- change directory
         if (strcmp(command, "cd") == 0)
         {
-            chdir(arg);
+        if( chdir( arg ) == 0 ) {
+            printf( "Directory changed to %s\n", arg);
+        }
+         //   printf("%s\n", getcwd(buffer, 1024));
         }
 
         // clr command -- clear terminal
@@ -111,15 +121,14 @@ int main(int argc, char *argv[], char** envp)
         // pause command -- wait a minute
         else if (strcmp(command, "pause") == 0)
         {
-            scanf("%c",arg);
+            scanf("%s",cwd);
             //getchar();
         }
-
 
         // quit command -- exit the shell
         else if (strcmp(command, "quit") == 0)
         {
-            return EXIT_SUCCESS;
+            exit(1);
         }
 
         // Unsupported command
@@ -132,6 +141,5 @@ int main(int argc, char *argv[], char** envp)
         //clear arg
         memset(arg,0,strlen(arg));
 
-    }
-    return EXIT_SUCCESS;
+        return 1;
 }
