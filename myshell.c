@@ -35,7 +35,7 @@ int main(int argc, char *argv[], char** envp)
                 printf("File open success test\n");
                 char line [BUFFER_LEN]; printf("Batchfile %s was not found\n", argv[1]);
                 while(fgets(line,sizeof line, fp) != NULL){
-                    sheller(line, envp);}
+                    sheller(line, envp);} //PS, we pass envp over so that sheller may access it
                 }
             
             fclose(fp);
@@ -68,7 +68,7 @@ int sheller(char buffer[], char** envp)
         char arg[BUFFER_LEN] = { 0 };
         char *result = NULL;
         char cwd[1024];
-        char man[BUFFER_LEN] = "man ";
+        char man[BUFFER_LEN] = "man "; //for the manual. I think the pdf was refering to the man manual, forgive me if I'm wrong 
         getcwd(cwd, sizeof(cwd));
         //initialise our stuff
 
@@ -83,31 +83,29 @@ int sheller(char buffer[], char** envp)
             result = strtok( NULL, " " );
         }
         arg[strlen(arg) - 1] = '\0';
-        //tokenize, push argument to arg, and remove trailing space
+        //tokenize, push argument to arg, include spaces (apparently, it seemed fair enough to, but unnecessary as well), and remove trailing space
 
 
         // cd command -- change directory
         if (strcmp(command, "cd") == 0)
         {
-        if(strlen(arg) == 0) {
-        printf( "Current Directory: %s\n", getcwd(cwd, sizeof(cwd)));
-        } //if no argument
-        else if( chdir( arg ) == 0 ) {
-           // printf( "Directory changed to %s\n", arg);
-            setenv("PWD", getcwd(cwd, sizeof(cwd)), 1);
-        }
-        else
-        {
-            printf( "Could not locate directory %s\n", arg);
-        }
-        
-         //   printf("%s\n", getcwd(buffer, 1024));
+            if(strlen(arg) == 0) {
+                printf( "Current Directory: %s\n", getcwd(cwd, sizeof(cwd)));
+            } //if no argument
+
+            else if( chdir( arg ) == 0 ) { //if success
+                setenv("PWD", getcwd(cwd, sizeof(cwd)), 1);
+            }
+            else //if failure
+            {
+                printf( "Could not locate directory %s\n", arg);
+            }
         }
 
         // clr command -- clear terminal
         else if (strcmp(command, "clr") == 0)
         {
-            system("clear");
+            system("clear"); //POSIX function
         }
 
         // dir command -- display contents of current directory
@@ -123,7 +121,7 @@ int sheller(char buffer[], char** envp)
             for (env = envp; *env != 0; env++)
             {
                 char* thisEnv = *env;
-                printf("%s\n", thisEnv);    
+                printf("%s\n", thisEnv);    //print our enviro vars. Not quite sure what formatting was wanted, though
             }
         }
 
@@ -138,13 +136,13 @@ int sheller(char buffer[], char** envp)
         {
             strcpy(man, "man ");
             strcat(man, arg);
-            system(man);
+            system(man); //use LINUX command 'man'
         }
 
         // pause command -- wait a minute
         else if (strcmp(command, "pause") == 0)
         {
-            fgets(buffer, BUFFER_LEN, stdin);
+            fgets(buffer, BUFFER_LEN, stdin); //waits for input. Cleanest way to accomplish without losing chars
             //scanf("%s",cwd);
             //getchar();
         }
@@ -152,7 +150,7 @@ int sheller(char buffer[], char** envp)
         // quit command -- exit the shell
         else if (strcmp(command, "quit") == 0)
         {
-            exit(1);
+            exit(1); 
         }
 
         // Unsupported command
@@ -166,3 +164,4 @@ int sheller(char buffer[], char** envp)
         memset(arg,0,strlen(arg));
         return 1;
 }
+//FIN
